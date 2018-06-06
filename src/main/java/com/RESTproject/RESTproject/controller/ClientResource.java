@@ -36,7 +36,34 @@ public class ClientResource {
 
     @DeleteMapping("/clients/{id}")
     public void deleteClient(@PathVariable long id) {
+
         clientRepository.deleteById(id);
+    }
+
+    @PostMapping("/clients")
+    public ResponseEntity<Object> createClient(@RequestBody Client client) {
+        Client savedClient = clientRepository.save(client);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(savedClient.getId()).toUri();
+
+        return ResponseEntity.created(location).build();
+
+    }
+
+    @PutMapping("/clients/{id}")
+    public ResponseEntity<Object> updateClient(@RequestBody Client client, @PathVariable long id) {
+
+        Optional<Client> clientOptional = clientRepository.findById(id);
+
+        if (!clientOptional.isPresent())
+            return ResponseEntity.notFound().build();
+
+        client.setId(id);
+
+        clientRepository.save(client);
+
+        return ResponseEntity.noContent().build();
     }
 
 
